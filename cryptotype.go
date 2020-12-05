@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"fmt"
+	"io"
 	"net"
 	"strconv"
 )
@@ -13,6 +14,8 @@ I've loaded this up with some some example code. This is just for reference .
 **/
 
 var port int = 4242
+var ranReader io.Reader
+var privKey *rsa.PrivateKey
 
 func getIP() string {
 	var ip string
@@ -21,21 +24,33 @@ func getIP() string {
 	return ip
 }
 
-func genPrivKey() *rsa.PrivateKey {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
+func genPrivKey(ranReader io.Reader) *rsa.PrivateKey {
+	privateKey, err := rsa.GenerateKey(ranReader, 4096)
 	if err != nil {
 		panic(err)
 	}
+	privKey = privateKey
 	return privateKey
 }
 
-func connectionHandler(con net.Conn) {
+func encrypt(rand io.Reader, pub *rsa.PublicKey, msg []byte) ([]byte, error) {
+	return rsa.EncryptPKCS1v15(rand, pub, msg)
+}
+
+func decrypt(rand io.Reader, priv *rsa.PrivateKey, ciphertext []byte) ([]byte, error) {
+	return rsa.DecryptPKCS1v15(rand, priv, ciphertext)
+}
+
+func connectionHandler(con net.Conn) { // one of these connection handlers is made for every connection made. It'll be in charge of the handshake
 	fmt.Println("connection receaved")
+	con.Write([]byte("Message received."))
+	fmt.Println(con.RemoteAddr())
+
 }
 
 func startServer() {
+	fmt.Println("Starting Server")
 	l, err := net.Listen("tcp", ":"+strconv.Itoa(port))
-	fmt.Println("Started Server")
 	if err != nil {
 		panic(err)
 	}
@@ -60,13 +75,18 @@ func send(ip string, message string) {
 }
 
 func main() {
-	//targetIP := getIP()
-	//fmt.Println("Target IP has been set to", targetIP)
+	targetIP := getIP()
+	fmt.Println("Target IP has been set to", targetIP)
+
+	fmt.Println("Creating Entropy")
+	ranReader = rand.Reader
+
+	genPrivKey(ranReader)
+
+	fmt.Println("Generated Key Pair")
 
 	go startServer()
+
 	fmt.Scanln()
-	//privateKey := genPrivKey()
-	//publicKey := privateKey.PublicKey
-	//fmt.Println(publicKey)
 
 }
