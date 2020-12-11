@@ -1,13 +1,12 @@
 # cryptotype
 A simple go powered encrypted messaging app
 
-Working:
-    RSA Key Generation
-    Encryption and Decryption functions
-    Server that creates a new handler on a thread for every connection
-    Send function
+Last Updated: 12/11/2020
 
 ToDo:
-    Handler function for each connection
-    Putting the parts togeather (I have most of the part, I just need to assemble them)
-    Menu (I'd like some nice menu where the user can start and stop services and change settings. It's not a priority tho)
+* Server crashes after client disconnects
+* Increase max message size (current is 256 bytes)
+* Allow for multiple clients
+    * Create Client Structure 
+* Allow the server to send messages to the client
+    * Allow the server to send messages from one client to another
