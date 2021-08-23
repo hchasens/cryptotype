@@ -1,3 +1,4 @@
+This is my first escapade into golang. It's messy and ugly. You have been warned.
 # cryptotype
 A simple go powered encrypted messaging app
 
